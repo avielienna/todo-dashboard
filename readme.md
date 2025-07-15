@@ -39,18 +39,14 @@
     * `git clone https://github.com/avielienna/todo-dashboard.git`
     * (🇷🇺 или скачайте ZIP-архив и распакуйте его / 🇬🇧 or download the ZIP and extract it)
 
-2.  **🇷🇺 Перейдите в папку проекта и создайте папку `uploads` / 🇬🇧 Navigate to the project folder and create an `uploads` folder:**
-    * `cd todo-dashboard`
-    * `mkdir uploads`
-
-3.  **🇷🇺 Установите зависимости / 🇬🇧 Install dependencies:**
+2.  **🇷🇺 Установите зависимости / 🇬🇧 Install dependencies:**
     * `pip install Flask Flask-SQLAlchemy Flask-Login Flask-Bcrypt`
 
-4.  **🇷🇺 Запустите приложение / 🇬🇧 Run the application:**
+3.  **🇷🇺 Запустите приложение / 🇬🇧 Run the application:**
     * `python app.py`
     * (🇷🇺 При первом запуске будет создан файл базы данных `todo.db` / 🇬🇧 A `todo.db` database file will be created on the first run)
 
-5.  **🇷🇺 Откройте в браузере / 🇬🇧 Open in your browser:**
+4.  **🇷🇺 Откройте в браузере / 🇬🇧 Open in your browser:**
     * ➡️ **[http://127.0.0.1:5001](http://127.0.0.1:5001)**
     * (🇷🇺 Первым делом нужно будет зарегистрировать нового пользователя / 🇬🇧 You will need to register a new user first)
 
