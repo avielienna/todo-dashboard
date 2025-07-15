@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ get_text(lang, 'auth_login_title') }}{% endblock %}
+
+{% block content %}
+<body class="{{ theme }} auth-page">
+    <div class="auth-container">
+        <h2>{{ get_text(lang, 'auth_login_title') }}</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST">
+            <input type="text" name="username" placeholder="{{ get_text(lang, 'username') }}" required>
+            <input type="password" name="password" placeholder="{{ get_text(lang, 'password') }}" required>
+            <button type="submit">{{ get_text(lang, 'login_btn') }}</button>
+        </form>
+        <p>{{ get_text(lang, 'no_account') }} <a href="{{ url_for('register') }}">Зарегистрируйтесь</a></p>
+    </div>
+</body>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ get_text(lang, 'header_archive') }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="todo-container">
+        <div class="header-container">
+            <h1>{{ get_text(lang, 'header_archive') }}</h1>
+            <a href="{{ url_for('index') }}" class="archive-link">{{ get_text(lang, 'archive_back_link') }}</a>
+        </div>
+
+        <ul class="task-list">
+            {% for task in tasks %}
+            <li class="task-item completed">
+                <div class="priority-indicator priority-{{ task.priority }}"></div>
+                <div class="task-content">
+                    <div class="task-info">
+                        <span class="task-description">{{ task.description }}</span>
+                         {% if task.attachment_filename %}
+                            <a href="{{ url_for('uploaded_file', filename=task.attachment_filename) }}" class="attachment-link" target="_blank">{{ get_text(lang, 'attachment_link') }}</a>
+                        {% endif %}
+                        <div class="tags-container">
+                            {% for tag in task.tags %}
+                            <span class="tag-badge">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <a href="{{ url_for('restore_task', task_id=task.id) }}" class="action-btn" title="{{ get_text(lang, 'archive_restore_btn') }}">🔄</a>
+                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="action-btn" title="{{ get_text(lang, 'archive_delete_forever_btn') }}">🗑️</a>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

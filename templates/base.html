@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ get_text(lang, 'title') }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body class="{{ theme }}">
+
+    <div class="top-controls">
+        <a href="{{ url_for('set_theme', theme_name='dark' if theme == 'light' else 'light') }}" class="theme-toggle" title="Сменить тему">
+            <span class="icon-sun">☀️</span>
+            <span class="icon-moon">🌙</span>
+        </a>
+        <a href="{{ url_for('set_language', lang='en' if lang == 'ru' else 'ru') }}" class="lang-toggle lang-{{ lang }}" title="Change language">
+            <div class="flag-slider">
+                <div class="flag">🇷🇺</div>
+                <div class="flag">🇬🇧</div>
+            </div>
+        </a>
+    </div>
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

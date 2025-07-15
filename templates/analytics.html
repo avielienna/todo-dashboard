@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ get_text(lang, 'header_analytics') }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="analytics-container">
+        <div class="header-container">
+            <h1>{{ get_text(lang, 'header_analytics') }}</h1>
+            <a href="{{ url_for('index') }}" class="archive-link">{{ get_text(lang, 'archive_back_link') }}</a>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h2>{{ tasks_this_week }}</h2>
+                <p>{{ get_text(lang, 'stats_this_week') }}</p>
+            </div>
+            <div class="stat-card">
+                <h2>{{ tasks_this_month }}</h2>
+                <p>{{ get_text(lang, 'stats_this_month') }}</p>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h3>{{ get_text(lang, 'stats_header') }}</h3>
+            <canvas id="dailyTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+<script>
+    const ctx = document.getElementById('dailyTrendChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: '{{ get_text(lang, "chart_label") }}',
+                data: {{ chart_data|tojson }},
+                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

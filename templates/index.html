@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ get_text(lang, 'header_tasks') }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="todo-container">
+        <div class="header-container">
+            <h1>{{ get_text(lang, 'header_tasks') }}</h1>
+            <div class="user-controls">
+                <span>{{ current_user.username }}</span>
+                <a href="{{ url_for('analytics') }}" class="analytics-link">{{ get_text(lang, 'user_controls_analytics') }} 📈</a>
+                <a href="{{ url_for('archive') }}" class="archive-link">{{ get_text(lang, 'user_controls_archive') }} 🗄️</a>
+                <a href="{{ url_for('logout') }}" class="logout-link">{{ get_text(lang, 'user_controls_logout') }}</a>
+            </div>
+        </div>
+        <form action="{{ url_for('add_task') }}" method="POST" class="add-task-form" enctype="multipart/form-data">
+            <div class="form-row">
+                <input type="text" name="description" placeholder="{{ get_text(lang, 'placeholder_desc') }}" required class="form-input-main">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="priority">{{ get_text(lang, 'label_priority') }}</label>
+                    <select name="priority" id="priority">
+                        <option value="1">{{ get_text(lang, 'priority_high') }}</option>
+                        <option value="2" selected>{{ get_text(lang, 'priority_medium') }}</option>
+                        <option value="3">{{ get_text(lang, 'priority_low') }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tags">{{ get_text(lang, 'label_tags') }}</label>
+                    <input type="text" name="tags" id="tags" placeholder="{{ get_text(lang, 'placeholder_tags') }}">
+                </div>
+                <div class="form-group">
+                    <label for="deadline">{{ get_text(lang, 'label_deadline') }}</label>
+                    <input type="date" name="deadline" id="deadline">
+                </div>
+            </div>
+             <div class="form-row">
+                <div class="form-group">
+                    <label for="attachment">{{ get_text(lang, 'label_attachment') }}</label>
+                    <input type="file" name="attachment" id="attachment">
+                </div>
+            </div>
+            <button type="submit">{{ get_text(lang, 'add_task_btn') }}</button>
+        </form>
+
+        <form method="GET" action="{{ url_for('index') }}" class="filter-controls">
+            <input type="search" name="search" placeholder="{{ get_text(lang, 'filter_search_placeholder') }}" value="{{ search_term or '' }}">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>{{ get_text(lang, 'filter_all_statuses') }}</option>
+                <option value="не выполнено" {% if status_filter == 'не выполнено' %}selected{% endif %}>{{ get_text(lang, 'filter_active') }}</option>
+                <option value="выполнено" {% if status_filter == 'выполнено' %}selected{% endif %}>{{ get_text(lang, 'filter_completed') }}</option>
+            </select>
+            <select name="tag" onchange="this.form.submit()">
+                <option value="">{{ get_text(lang, 'filter_all_tags') }}</option>
+                {% for tag in all_tags %}
+                <option value="{{ tag.id }}" {% if tag_filter_id == tag.id %}selected{% endif %}>{{ tag.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">{{ get_text(lang, 'filter_search_btn') }}</button>
+            <a href="{{ url_for('index') }}" class="clear-filter">{{ get_text(lang, 'filter_reset_btn') }}</a>
+        </form>
+
+        <ul class="task-list" id="task-list-sortable">
+            {% for task in tasks %}
+            <li class="task-item {% if task.status == 'выполнено' %}completed{% endif %}" data-task-id="{{ task.id }}">
+                <div class="priority-indicator priority-{{ task.priority }}"></div>
+                <div class="task-content">
+                    <div class="task-info">
+                        <span class="task-description">{{ task.description }}</span>
+                         {% if task.attachment_filename %}
+                            <a href="{{ url_for('uploaded_file', filename=task.attachment_filename) }}" class="attachment-link" target="_blank">{{ get_text(lang, 'attachment_link') }}</a>
+                        {% endif %}
+                        {% if task.deadline %}
+                            {% set days_left = (task.deadline - today).days %}
+                            <span class="deadline-info 
+                                {% if days_left < 0 %}overdue{% endif %}
+                                {% if days_left == 0 %}due-today{% endif %}
+                            ">
+                                ⏳
+                                {% if days_left < 0 %}{{ get_text(lang, 'deadline_overdue') }} {{ -days_left }} {{ get_text(lang, 'days_unit') }}
+                                {% elif days_left == 0 %}{{ get_text(lang, 'deadline_today') }}
+                                {% else %}{{ get_text(lang, 'deadline_days_left') }} {{ days_left }} {{ get_text(lang, 'days_unit') }}
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                        <div class="tags-container">
+                            {% for tag in task.tags %}
+                            <span class="tag-badge">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        {% if task.status != 'выполнено' %}
+                            <a href="{{ url_for('complete_task', task_id=task.id) }}" class="action-btn" title="Выполнить">✔️</a>
+                        {% else %}
+                            <a href="{{ url_for('archive_task', task_id=task.id) }}" class="action-btn" title="В архив">🗄️</a>
+                        {% endif %}
+                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="action-btn" title="Удалить">🗑️</a>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sortableList = document.getElementById('task-list-sortable');
+        if (sortableList) {
+            new Sortable(sortableList, {
+                animation: 150,
+                ghostClass: 'ghost-class',
+                onEnd: function (evt) {
+                    const taskOrder = Array.from(sortableList.children).map(child => child.dataset.taskId);
+                    fetch('/update_order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order: taskOrder })
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
